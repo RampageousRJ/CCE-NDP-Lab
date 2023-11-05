@@ -15,14 +15,14 @@ int main()
 	
 	int sockfd;
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
-	struct sockaddr_in server_addr, client_addr;
+	struct sockaddr_in server, client;
 	
-	server_addr.sin_family = AF_INET;
-	server_addr.sin_port = htons(myport);
-	server_addr.sin_addr.s_addr = inet_addr("127.0.0.1"); //this has to do something with the localhost
-	memset( &(server_addr.sin_zero), '\0', sizeof(server_addr.sin_zero));
+	server.sin_family = AF_INET;
+	server.sin_port = htons(myport);
+	server.sin_addr.s_addr = inet_addr("127.0.0.1");
+	memset( &(server.sin_zero), '\0', sizeof(server.sin_zero));
 	
-	bind(sockfd, (struct sockaddr *)&server_addr, sizeof(struct sockaddr));
+	bind(sockfd, (struct sockaddr *)&server, sizeof(struct sockaddr));
 	
 	printf("Waiting to recieve...");
 	printf("\n");
@@ -30,13 +30,9 @@ int main()
 	char buffer[20];
 	int size = sizeof(struct sockaddr);
 	int len=0, i, j;
-	
-	//recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr *) &client_addr, &size);
-	//printf("%s", buffer);
 	while(1)
 	{
-	
-		recvfrom(sockfd, buffer, 20, 0, (struct sockaddr*)& client_addr, &size);
+		recvfrom(sockfd, buffer, 20, 0, (struct sockaddr*)& client, &size);
 		printf("\nRecieved: ");
 		puts(buffer);
 		if(strcmp(buffer, "Halt")==0)
@@ -53,16 +49,12 @@ int main()
 			{
 				case 'a':
 				case 'A': a++; break;
-				
 				case 'e':
 				case 'E': e++; break;
-				
 				case 'i':
 				case 'I': I++; break;
-				
 				case 'o':
 				case 'O': o++; break;
-				
 				case 'u':
 				case 'U': u++; break;				
 			}
@@ -74,13 +66,13 @@ int main()
 		else
 			strcpy(result , "Not a palindrome");
 
-		sendto(sockfd, result, sizeof(result), 0, (struct sockaddr*)& client_addr, size);
-		sendto(sockfd, &len, sizeof(len), 0, (struct sockaddr*)& client_addr, size);
-		sendto(sockfd, &a, sizeof(a), 0, (struct sockaddr *)& client_addr, size);	
-		sendto(sockfd, &e, sizeof(e), 0, (struct sockaddr *)& client_addr, size);	
-		sendto(sockfd, &I, sizeof(I), 0, (struct sockaddr *)& client_addr, size);	
-		sendto(sockfd, &o, sizeof(o), 0, (struct sockaddr *)& client_addr, size);	
-		sendto(sockfd, &u, sizeof(u), 0, (struct sockaddr *)& client_addr, size);	
+		sendto(sockfd, result, sizeof(result), 0, (struct sockaddr*)& client, size);
+		sendto(sockfd, &len, sizeof(len), 0, (struct sockaddr*)& client, size);
+		sendto(sockfd, &a, sizeof(a), 0, (struct sockaddr *)& client, size);	
+		sendto(sockfd, &e, sizeof(e), 0, (struct sockaddr *)& client, size);	
+		sendto(sockfd, &I, sizeof(I), 0, (struct sockaddr *)& client, size);	
+		sendto(sockfd, &o, sizeof(o), 0, (struct sockaddr *)& client, size);	
+		sendto(sockfd, &u, sizeof(u), 0, (struct sockaddr *)& client, size);	
 	}	
 	close(sockfd);	
 	return 0;

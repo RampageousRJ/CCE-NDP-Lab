@@ -70,7 +70,5 @@ void main()
 	}
 	
 	}
-	
-
 	close(sockfd);
 }

@@ -9,7 +9,7 @@
 void main(){
 	int sockfd,newsockfd,retval;
 	socklen_t actuallen;
-	int recedbytes1,recedbytes2,recedbytes3,sentbytes;
+	int rb1,rb2,rb3,sb;
 	struct sockaddr_in serveraddr,clientaddr;
 
 	int buff[MAXSIZE];

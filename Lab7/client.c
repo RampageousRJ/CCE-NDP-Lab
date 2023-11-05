@@ -14,7 +14,7 @@ void main()
     int recedbytes, sentbytes1, sentbytes2, sentbytes3;
     struct sockaddr_in serveraddr;
     char username[MAXSIZE];
-    char password[MAXSIZE];
+    char pass[MAXSIZE];
     char status[MAXSIZE];
     char login = 'n';
     int buff[MAXSIZE];
@@ -41,11 +41,11 @@ void main()
         {
             printf("\nEnter username: ");
             gets(username);
-            printf("\nEnter password: ");
-            gets(password);
+            printf("\nEnter pass: ");
+            gets(pass);
 
             send(sockfd, username, sizeof(username), 0);
-            send(sockfd, password, sizeof(password), 0);
+            send(sockfd, pass, sizeof(pass), 0);
             recv(sockfd, status, sizeof(status), 0);
             if (strcmp(status, "ok") == 0)
             {

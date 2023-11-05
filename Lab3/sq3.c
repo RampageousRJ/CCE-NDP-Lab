@@ -9,7 +9,7 @@
 
 void main()
 {
-    int sockfd, newsockfd, retval;
+    int s, ns, retval;
     socklen_t actuallen;
     int recedbytes1, recedbytes2, recedbytes3, sentbytes;
     struct sockaddr_in serveraddr, clientaddr;
@@ -19,9 +19,9 @@ void main()
     char abuff[MAXSIZE];
 
     int a = 0;
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    s = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sockfd == -1)
+    if (s == -1)
     {
         printf("\nSocket creation error");
     }
@@ -29,29 +29,29 @@ void main()
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_port = htons(3390);
     serveraddr.sin_addr.s_addr = htons(INADDR_ANY);
-    retval = bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+    retval = bind(s, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     if (retval == 1)
     {
         printf("Binding error");
-        close(sockfd);
+        close(s);
     }
 
-    retval = listen(sockfd, 1);
+    retval = listen(s, 1);
     if (retval == -1) 
     {
-        close(sockfd);
+        close(s);
     }
     actuallen = sizeof(clientaddr);
-    newsockfd = accept(sockfd, (struct sockaddr *)&clientaddr, &actuallen);
-    if (newsockfd == -1)
+    ns = accept(s, (struct sockaddr *)&clientaddr, &actuallen);
+    if (ns == -1)
     {
         printf("New Socket Cannot Be Made...");
-        close(sockfd);
+        close(s);
     }
     printf("Connected\n");
     int n;
-        recv(newsockfd, buff, sizeof(buff), 0);
-        recv(newsockfd, &n, sizeof(n), 0);
+        recv(ns, buff, sizeof(buff), 0);
+        recv(ns, &n, sizeof(n), 0);
         printf("\nRecieved: %s\n", buff);
         int pid = fork();
         if (pid == 0)
@@ -78,7 +78,7 @@ void main()
                     }
                 }
             }
-            send(newsockfd, nbuff, sizeof(nbuff), 0);
+            send(ns, nbuff, sizeof(nbuff), 0);
         }
         else if (pid > 0)
         {
@@ -110,12 +110,12 @@ void main()
                 abuff[i] = abuff[j];
                 abuff[j] = temp;
             }
-            send(newsockfd, abuff, sizeof(abuff), 0);
+            send(ns, abuff, sizeof(abuff), 0);
         }
         else
         {
             printf("ERROR");
         }
-    close(sockfd);
-    close(newsockfd);
+    close(s);
+    close(ns);
 }

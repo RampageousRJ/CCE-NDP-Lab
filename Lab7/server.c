@@ -39,7 +39,7 @@ void encrypt(char *pass)
     strcpy(epass, pass);
 }
 
-int checkCredentials(char *username, char *password, struct user *arr)
+int checkCredentials(char *username, char *password)
 {
     char buff[256];
     int count = 0;
@@ -108,9 +108,8 @@ void withdraw(char *username, int amount)
 
 void main()
 {
-    int sockfd, newsockfd, retval;
+    int s, ns, retval;
     socklen_t actuallen;
-    int reced_username, reced_password, recedbytes3, sentbytes;
     struct sockaddr_in serveraddr, clientaddr;
     struct user arr[MAXSIZE];
     FILE *fp = fopen("users.txt", "r");
@@ -140,9 +139,9 @@ void main()
     char password[MAXSIZE];
     char status[MAXSIZE];
     int a = 0;
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    s = socket(AF_INET, SOCK_STREAM, 0);
 
-    if (sockfd == -1)
+    if (s == -1)
     {
         printf("\nSocket creation error");
     }
@@ -150,33 +149,33 @@ void main()
     serveraddr.sin_family = AF_INET;
     serveraddr.sin_port = htons(3300);
     serveraddr.sin_addr.s_addr = htons(INADDR_ANY);
-    retval = bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
+    retval = bind(s, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
     if (retval == 1)
     {
         printf("Binding error");
-        close(sockfd);
+        close(s);
     }
 
-    retval = listen(sockfd, 1);
+    retval = listen(s, 1);
     if (retval == -1)
     {
-        close(sockfd);
+        close(s);
     }
     actuallen = sizeof(clientaddr);
-    newsockfd = accept(sockfd, (struct sockaddr *)&clientaddr, &actuallen);
-    if (newsockfd == -1)
+    ns = accept(s, (struct sockaddr *)&clientaddr, &actuallen);
+    if (ns == -1)
     {
-        close(sockfd);
+        close(s);
     }
     printf("Connected\n");
-    int n, ch = 1;
+    int ch = 1;
     char login = 'n';
     while (1)
     {
         if (login == 'n')
         {
-            recv(newsockfd, username, sizeof(username), 0);
-            recv(newsockfd, password, sizeof(password), 0);
+            recv(ns, username, sizeof(username), 0);
+            recv(ns, password, sizeof(password), 0);
             encrypt(password);
             if (checkCredentials(username, epass))
             {
@@ -186,8 +185,8 @@ void main()
             {
                 strcpy(status, "retry");
             }
-            send(newsockfd, status, sizeof(status), 0);
-            recv(newsockfd, status, sizeof(status), 0);
+            send(ns, status, sizeof(status), 0);
+            recv(ns, status, sizeof(status), 0);
             if (strcmp(status, "retry") == 0)
             {
                 printf("\nRetrying...");
@@ -198,22 +197,22 @@ void main()
         else
         {
             int bal;
-            recv(newsockfd, &ch, sizeof(ch), 0);
+            recv(ns, &ch, sizeof(ch), 0);
             printf("\n%d\n", ch);
             if (ch == 1)
             {
-                recv(newsockfd, &bal, sizeof(bal), 0);
+                recv(ns, &bal, sizeof(bal), 0);
                 debit(username, bal);
             }
             else if (ch == 2)
             {
-                recv(sockfd, &bal, sizeof(bal), 0);
+                recv(ns, &bal, sizeof(bal), 0);
                 withdraw(username, bal);
             }
             else if (ch == 3)
             {
                 int bal = checkBalance(username);
-                send(newsockfd, &bal, sizeof(bal), 0);
+                send(ns, &bal, sizeof(bal), 0);
             }
             else
             {
@@ -222,6 +221,6 @@ void main()
             }
         }
     }
-    close(sockfd);
-    close(newsockfd);
+    close(s);
+    close(ns);
 }

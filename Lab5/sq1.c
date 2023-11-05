@@ -65,6 +65,9 @@ int main()
 		curr++;
 
 		if ((pid = fork()) == 0)
+		{ // if it’s 0, it’s child process
+			// printf ("%s\n","Child created for dealing with client requests");
+			// close listening socket
 			close(s);
 			n = recv(ns, buff, sizeof(buff), 0);
 			// strcat(str,buff);
@@ -132,5 +135,4 @@ int main()
 		// close socket of the server
 		close(ns);
 	}
-	close(s);
 }

@@ -115,9 +115,9 @@ int main()
 	ch = buff[0];
 	int i,n,n1,n2,j;
 	char str[50],str1[50],str2[50];
-	char strTempData[MAX_LEN];
-    char **strData = NULL; // String List
-    int noOfLines = 0;
+	char temp[MAX_LEN];
+    char **arr = NULL; // String List
+    int rows = 0;
 	switch(ch)
 	{
 		case 1:
@@ -127,7 +127,7 @@ int main()
 			str[i]=buff[i+2];
 		str[n]='\0';
 		FILE *fp;
-		int line_num = 1;
+		int row = 1;
 		int find_result = 0;
 		char temp[512];
 		if((fp = fopen(fil, "r")) == NULL) {
@@ -140,7 +140,7 @@ int main()
 		if((strstr(temp, str)) != NULL) {
 			find_result++;
 		}
-		line_num++;
+		row++;
 		}
 		if(fp) {
 		fclose(fp);
@@ -182,31 +182,31 @@ int main()
 		}
 		str2[j]='\0';
 		printf("\nReplacing %s with %s..\n",str1,str2);
-		FILE * fPtr;
-    	FILE * fTemp;
+		FILE * fptr;
+    	FILE * ft;
     	char buffer[1000];
-    	fPtr  = fopen(fil, "r");
-    	fTemp = fopen("replace.tmp", "w"); 
-    	if (fPtr == NULL || fTemp == NULL)
+    	fptr  = fopen(fil, "r");
+    	ft = fopen("replace.tmp", "w"); 
+    	if (fptr == NULL || ft == NULL)
    		 {
         /* Unable to open file hence exit */
         printf("\nUnable to open file.\n");
         printf("Please check whether file exists and you have read/write privilege.\n");
         exit(0);
     	}
-    	 while ((fgets(buffer, 1000, fPtr)) != NULL)
+    	 while ((fgets(buffer, 1000, fptr)) != NULL)
     	{
         // Replace all occurrence of word from current line
         replaceAll(buffer, str1, str2);
 
         // After replacing write it to temp file.
-        fputs(buffer, fTemp);
+        fputs(buffer, ft);
     	}
 
 
     /* Close all files to release resource */
-    	fclose(fPtr);
-    	fclose(fTemp);
+    	fclose(fptr);
+    	fclose(ft);
 
 
     /* Delete original source file */
@@ -216,61 +216,47 @@ int main()
     	rename("replace.tmp", fil);
     	strcpy(buff,"Replace finished!");
     	sntb=send(ns,buff,sizeof(buff),0);
-		if(sntb==-1)
-		{
-		printf("\nMessage Sending Failed");
-		close(s);
-		close(ns);
-		exit(0);
-		}
 		break;
-
 		case 3:printf("\nOrdering file..\n");
 		
-    FILE * ptrFileLog = NULL;
-    FILE * ptrSummary = NULL;
+    FILE * plog = NULL;
+    FILE * ps = NULL;
 
-    if ( (ptrFileLog = fopen(fil, "r")) == NULL ) {
+    if ( (plog = fopen(fil, "r")) == NULL ) {
         fprintf(stderr,"Error: Could not open %s\n",fil);
         return 1;
     }
-    if ( (ptrSummary = fopen("temp.txt", "a")) == NULL ) {
+    if ( (ps = fopen("temp.txt", "a")) == NULL ) {
         fprintf(stderr,"Error: Could not open temp.txt\n");
         return 1;
     }
 
-    // Read and store in a string list.
-    while(fgets(strTempData, MAX_LEN, ptrFileLog) != NULL) {
-        // Remove the trailing newline character
-        if(strchr(strTempData,'\n'))
-            strTempData[strlen(strTempData)-1] = '\0';
-        strData = (char**)realloc(strData, sizeof(char**)*(noOfLines+1));
-        strData[noOfLines] = (char*)calloc(MAX_LEN,sizeof(char));
-        strcpy(strData[noOfLines], strTempData);
-        noOfLines++;
+    while(fgets(temp, MAX_LEN, plog) != NULL) {
+        if(strchr(temp,'\n'))
+            temp[strlen(temp)-1] = '\0';
+        arr = (char**)realloc(arr, sizeof(char**)*(rows+1));
+        arr[rows] = (char*)calloc(MAX_LEN,sizeof(char));
+        strcpy(arr[rows], temp);
+        rows++;
     }
-    // Sort the array.
-    for(i= 0; i < (noOfLines - 1); ++i) {
-        for(j = 0; j < ( noOfLines - i - 1); ++j) {
-            if(strcmp(strData[j], strData[j+1]) > 0) {
-                strcpy(strTempData, strData[j]);
-                strcpy(strData[j], strData[j+1]);
-                strcpy(strData[j+1], strTempData);
+    for(i= 0; i < (rows - 1); ++i) {
+        for(j = 0; j < ( rows - i - 1); ++j) {
+            if(strcmp(arr[j], arr[j+1]) > 0) {
+                strcpy(temp, arr[j]);
+                strcpy(arr[j], arr[j+1]);
+                strcpy(arr[j+1], temp);
             }
         }
     }
-    // Write it to outfile. file.
-    for(i = 0; i < noOfLines; i++)
-        fprintf(ptrSummary,"%s\n",strData[i]);
-    // free each string
-    for(i = 0; i < noOfLines; i++)
-        free(strData[i]);
-    // free string list.
-    free(strData);
+    for(i = 0; i < rows; i++)
+        fprintf(ps,"%s\n",arr[i]);
+    for(i = 0; i < rows; i++)
+        free(arr[i]);
+    free(arr);
     remove(fil);
     rename("temp.txt",fil);
-    fclose(ptrFileLog);
-    fclose(ptrSummary);
+    fclose(plog);
+    fclose(ps);
 		strcpy(buff,"Ordering done!");
 		sntb=send(ns,buff,sizeof(buff),0);
 		if(sntb==-1)
